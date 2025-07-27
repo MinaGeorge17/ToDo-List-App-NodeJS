@@ -51,7 +51,7 @@ app.post('/register', (req, res) => {
 app.post('/addtask', function(req,res){
     Dashboard.create({
         task : req.body.task,
-        date : req.body.date,
+        date : req.body.date || new Date().toISOString().split('T')[0],
         description : req.body.description,
         time : req.body.time,
         categoryChoosed : req.body.categoryChoosed

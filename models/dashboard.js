@@ -30,7 +30,7 @@ const dashboardSchema = mongoose.Schema({
     },
     date: {
         type: String,
-        required: true
+        
     },
     time: {
         type: String,
