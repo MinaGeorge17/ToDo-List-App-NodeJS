@@ -1,110 +1,62 @@
-<<<<<<< HEAD
+# ✅ ToDo List App – A Full DevOps Solution
 
-## Documentation
+This project illustrates how to build, containerize, and deploy a full-stack task management application using modern DevOps tools and practices. It showcases both Docker-based and Kubernetes-based deployment pipelines.
 
-[Documentation](https://linktodocumentation)
+ 
 
-📝 To-Do List nodeJs
+## 🧭 Project Overview
 
-The to-do list application is a web-based application that allows users to create and manage a list of tasks. The user interface consists of a form to add new tasks, a list of all tasks, and controls to mark tasks as complete or delete them.
+The ToDo List App is a DevOps-powered task management solution designed to exemplify scalable, automated software delivery workflows. Built with Node.js and backed by MongoDB, it allows users to perform full CRUD operations through a responsive web interface.
 
-To create the application, Node.js is used to set up the server and handle the logic of the application. Express.js is used to create the routes for the application, allowing the user to interact with the application through a web browser. EJS is used to create the views for the application, allowing the user to see the list of tasks and the form to add new tasks. CSS is used to style the application, making it visually appealing and easy to use.
+Deployed on an AWS EC2 instance, the project offers **two deployment strategies**:
 
-MongoDB and Mongoose are used to store the tasks in a database, allowing the user to add, delete, and update tasks as needed. Nodemon is used to monitor changes to the code and automatically restart the server, making it easy to develop and test the application.
+- **Docker Compose** with **Watchtower** for simple container orchestration and automatic updates.
+- **Kubernetes (MicroK8s)** with **ArgoCD** for a declarative, GitOps-based deployment approach.
 
-When the user adds a new task using the form, Node.js and Express.js handle the request and store the task in the database using Mongoose. When the user views the list of tasks, EJS displays the tasks from the database in a list on the web page. When the user marks a task as complete or deletes a task, Node.js and Express.js handle the request and update the database using Mongoose.
-
-Overall, the todo list application using Node.js, Express.js, EJS, CSS, JavaScript, MongoDB, Mongoose, and Nodemon can be a great way to create a functional and interactive web application that allows users to manage their tasks online. With the right combination of technologies, it is possible to create an application that is both functional and aesthetically pleasing, making it easy for users to manage their tasks in a convenient and efficient way.
-
-Technologies Used: NodeJS, ExpressJS, EJS, CSS, JavaScript, Nodemon, MongoDB, Mongoose.
-## Demo
-
-Under process...
-## Authors
-
-- [@AnkitVishwakarma](https://github.com/Ankit6098)
+It leverages **GitHub Actions** for continuous integration, **Ansible** for provisioning and configuration, and **Docker** for containerization—forming a complete CI/CD pipeline. Accessible via the EC2 instance’s public IP, the solution demonstrates real-world automation, health monitoring, and production-readiness in a cloud-native setup.
 
 
-## Features
 
-- Create, Update, and Delete Tasks: Enable users to create new tasks, update existing tasks (e.g., mark as completed, edit task details), and delete tasks they no longer need.
-- Task Categories provides Implement the ability for users to categorize their tasks into different categories (e.g., work, personal, shopping) or assign labels/tags to tasks for better organization and filtering.
-- MongoDb to store your the user data
-## Run Locally
+## 📚 Project Phases
 
-Clone the project
+The project is structured into four progressive phases, each building upon the previous to form a complete and production-grade DevOps workflow:
 
-```bash
-  git clone https://github.com/Ankit6098/Todos-nodejs
-```
+### Phase 1: Application Containerization and CI Integration
+- Clone the repository and configure environment variables for MongoDB connectivity.
+- Containerize the Node.js application using Docker.
+- Set up a CI pipeline using GitHub Actions to automatically build and push Docker images to DockerHub.
 
-Go to the project directory and open index.html file
+### Phase 2: Infrastructure Provisioning and Configuration
+- Launch a Linux-based virtual machine on AWS EC2.
+- Use Ansible from a local control machine to automate the provisioning of essential packages such as Docker, Git, Node.js, and MongoDB on the EC2 instance.
 
-```bash
-  cd Todos-nodejs
-```
+### Phase 3: Docker-Based Deployment and Auto-Update
+- Deploy the containerized application using Docker Compose.
+- Configure health checks and implement automatic image updates using Watchtower.
+- Ensure the application remains highly available and restartable with minimal manual intervention.
 
-Install the packages
+### Phase 4: Kubernetes Orchestration and GitOps Deployment
+- Replace Docker Compose with a Kubernetes-based deployment using MicroK8s.
+- Manage application deployment using GitOps practices through ArgoCD.
+- Use secrets, services, deployments, and ingress controllers to simulate real-world production deployments on cloud-native infrastructure.
 
-```bash
-  npm install / npm i
-```
+## 🛠️ Tools Used
 
-Start the Server
+The development and deployment of this project utilized a wide range of modern DevOps tools and technologies to create a reliable, scalable, and fully automated pipeline:
 
-```bash
-    npm start / nodemon start
-```
-## Acknowledgements
-
- - [nodemon](https://nodemon.io/)
- - [mongoDb](https://www.mongodb.com/)
- - [mongoose](https://mongoosejs.com/)
-
-
-## Screenshots
-
-![225232515-4c100b6b-52e4-40f8-a6d4-85e30dc2f5e7](https://github.com/Ankit6098/Todos-nodejs/assets/92246613/487f548f-7ca6-4183-9443-c88c9f79c3f0)
-![225232960-da554f1f-ba4a-41f8-9856-edaebe339d76](https://github.com/Ankit6098/Todos-nodejs/assets/92246613/25515d2e-1d72-498d-8044-59a01c6b9127)
-![225238829-05433362-5b16-454c-92d5-5e536fe6912e](https://github.com/Ankit6098/Todos-nodejs/assets/92246613/316d15ca-1fe8-4581-80b1-fc316340bba6)
-![225239140-226f8eae-d8b8-4055-8a68-d85d523c2422](https://github.com/Ankit6098/Todos-nodejs/assets/92246613/44a0c418-449e-446f-8a8e-3c4e14fca8bf)
-![225239221-caf86f3d-ef17-4d18-80a6-c72123ff5444](https://github.com/Ankit6098/Todos-nodejs/assets/92246613/2ee90ab0-95d4-44f4-80ac-b17b088ac1ce)
-![225239406-98b7ba7d-df97-4d27-bb66-596a32187d87](https://github.com/Ankit6098/Todos-nodejs/assets/92246613/960ff353-1ce9-4ef8-94e4-10af09184fd2)
-![225239841-4b5d77f0-4a54-4339-b6b3-b6a1be6776b5](https://github.com/Ankit6098/Todos-nodejs/assets/92246613/f5ffc3b8-480f-4d11-9a0b-c469e3c17e8e)
-
-
-## Related
-
-Here are some other projects
-
-[Alarm CLock - javascript](https://github.com/Ankit6098/Todos-nodejs)\
-[IMDb Clone - javascript](https://github.com/Ankit6098/IMDb-Clone)
-
-
-## 🚀 About Me
-I'm a full stack developer...
-
-
-# Hi, I'm Ankit! 👋
-
-I'm a full stack developer 😎 ... Love to Develop Classic Unique fascinating and Eye Catching UI and Love to Create Projects and Building logics.
-## 🔗 Links
-[![portfolio](https://img.shields.io/badge/my_portfolio-000?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ankithub.me/Resume/)
-
-[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColorwhite=)](https://www.linkedin.com/in/ankit-vishwakarma-6531221b0/)
-
-
-## Other Common Github Profile Sections
-🧠 I'm currently learning FullStack Developer Course from Coding Ninjas
-
-📫 How to reach me ankitvis609@gmail.com
-
-
-## 🛠 Skills
-React, Java, Javascript, HTML, CSS, Nodejs, ExpressJs, Mongodb, Mongoose...
-
-
-## Feedback
-
-If you have any feedback, please reach out to us at ankitvis609@gmail.com
+- **Node.js & Express.js** – Backend runtime and web framework for building the application logic.
+- **EJS** – Templating engine used for rendering dynamic HTML views.
+- **MongoDB & Mongoose** – NoSQL database and object data modeling (ODM) library for task persistence.
+- **Nodemon** – Development utility for monitoring file changes and restarting the server automatically.
+- **Docker** – Container platform for packaging the application and managing isolated environments.
+- **Git & GitHub** – Version control and remote repository for code collaboration and CI/CD workflows.
+- **GitHub Actions** – Continuous Integration (CI) tool for automating Docker builds and image pushes.
+- **Ansible** – Configuration management tool for automating software setup on the VM.
+- **AWS EC2 (t3.small)** – Cloud-based virtual machine used as the host environment for deployment.
+- **Docker Compose** – Used for initial multi-container orchestration and local testing.
+- **Watchtower** – Lightweight service for Continuous Deployment (CD) by monitoring and updating Docker containers automatically.
+- **MicroK8s** – Lightweight, production-grade Kubernetes distribution used for container orchestration.
+- **kubectl** – Command-line interface for managing Kubernetes clusters.
+- **ArgoCD** – GitOps-based continuous deployment system for declarative application management on Kubernetes.
+- **curl** – Command-line tool for HTTP requests, used for service testing and debugging.
 
