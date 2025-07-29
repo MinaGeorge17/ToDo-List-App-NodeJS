@@ -336,4 +336,168 @@ If the dashboard loads and you can add tasks, the app is successfully connected 
 🎉 **Phase 1 completed:** The app is now containerized and CI is working with GitHub Actions and Docker Hub.
 
 
+## 🚀 Phase 2: EC2 Instance Creation and Ansible Configuration
 
+With the application containerized and a CI pipeline in place, we now move on to provisioning a virtual machine on AWS and configuring it using Ansible for remote automation.
+
+---
+
+### ☁️ Step 1: Launch AWS EC2 Instance
+
+> **Goal**: Create a cloud-hosted virtual machine that will run our containerized application.
+
+- Log into the [AWS Console](https://console.aws.amazon.com).
+- Navigate to **EC2 > Instances > Launch Instance**.
+- Configure the instance:
+  - **AMI**: Ubuntu 20.04
+  - **Instance Type**: `t3.small` (2 vCPUs, 2 GB RAM)
+  - **Key Pair**: Create a new key pair (e.g., `todo-key.pem`)
+  - **Security Group**:
+    - Allow **SSH (22)** from your IP
+    - Allow **TCP (31013)** for the app
+    - Allow **TCP (8080)** for ArgoCD
+
+> ⚠️ Save the `.pem` file securely and note your public EC2 IP.
+
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/053cbdb44d4b03c584c607f836ffd64f46237988/DevOps-assets/2.1%20Creating%20Linux%20EC2%20in%20aws.png)
+
+
+---
+
+### 🧱 Step 2: Install WSL for Windows (if applicable)
+
+> **Goal**: Enable a Linux environment on Windows for Ansible execution.
+
+```bash
+wsl --install
+```
+
+Install Ubuntu from the Microsoft Store, then launch it and update the system:
+
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+Verify installation:
+
+```bash
+wsl -l -v
+```
+
+---
+
+### 🧰 Step 3: Install and Configure Ansible
+
+> **Goal**: Use Ansible to remotely install Docker on the EC2 instance.
+
+```bash
+sudo apt update
+sudo apt install ansible -y
+```
+
+Check Ansible version:
+
+```bash
+ansible --version
+```
+
+---
+
+### 🔐 Step 4: Transfer Your EC2 Key to WSL
+
+Move your `.pem` file to the Linux environment:
+
+```bash
+cp /mnt/c/Users/<YourUsername>/Downloads/todo-key.pem ~/
+chmod 400 ~/todo-key.pem
+```
+
+---
+
+### 🔌 Step 5: Verify SSH Access to EC2
+
+```bash
+ssh -i ~/todo-key.pem ubuntu@<ec2-public-ip>
+```
+
+Exit the EC2 shell after confirming access:
+
+```bash
+exit
+```
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/053cbdb44d4b03c584c607f836ffd64f46237988/DevOps-assets/2.2%20Successful%20SSH%20connection.png)
+
+---
+
+### 📂 Step 6: Add Ansible Inventory File
+
+> The inventory file used for defining remote hosts and SSH details can be found in the repository as `inventory`.
+
+Create it like this:
+
+```bash
+touch inventory
+```
+
+Edit it or copy it from the project repository.
+
+---
+
+### 📝 Step 7: Add Ansible Playbook
+
+> The Ansible playbook that installs and starts Docker is included in the repository as `playbook.yml`.
+
+Create it like this:
+
+```bash
+touch playbook.yml
+```
+
+Edit it or retrieve it from the repo.
+
+
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/053cbdb44d4b03c584c607f836ffd64f46237988/DevOps-assets/2.3%20ansible%20env%20can%20connect%20to%20the%20ec2.png)
+
+---
+
+### 🧪 Step 8: Run the Playbook
+
+```bash
+ansible-playbook -i inventory playbook.yml
+```
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/053cbdb44d4b03c584c607f836ffd64f46237988/DevOps-assets/2.4%20ansible%20downloading%20docker%20on%20ec2%20ubuntu.png)
+
+---
+
+### ✅ Step 9: Validate Docker Installation on EC2
+
+SSH into your EC2 instance:
+
+```bash
+ssh -i ~/todo-key.pem ubuntu@<ec2-public-ip>
+```
+
+Check Docker status:
+
+```bash
+sudo systemctl status docker
+```
+
+You should see `"active (running)"`.
+
+Exit the session:
+
+```bash
+exit
+```
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/053cbdb44d4b03c584c607f836ffd64f46237988/DevOps-assets/2.5%20docker%20running%20on%20the%20ec2.png)
+
+---
+
+### 💾 Step 10: Commit Configuration Files
+
+```bash
+git add inventory ansible-playbook.yml
+git commit -m "Add Ansible config and playbook for Docker setup"
+git push -u origin main
+```
