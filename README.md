@@ -2,7 +2,7 @@
 
 This project illustrates how to build, containerize, and deploy a full-stack task management application using modern DevOps tools and practices. It showcases both Docker-based and Kubernetes-based deployment pipelines.
 
- 
+[!App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/6234c4e8f8af8841b13b8732576482183e5d1cae/DevOps-assets/1.1%20App%20Interface%20.png)
 
 ## 🧭 Project Overview
 
