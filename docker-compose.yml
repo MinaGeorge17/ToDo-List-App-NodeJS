@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  todo-app:
+    image: minageorge17/todo-list-app:latest
+    ports:
+      - "4000:4000"
+    environment:
+      - MONGODB_URL=${MONGODB_URL}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.docker/config.json:/config.json
+    command: --interval 300 --debug
+    restart: unless-stopped
