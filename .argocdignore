@@ -1,1 +1,4 @@
-package-lock.json
+# Ignore all files except manifests
+*
+!deployment.yaml
+!service.yaml
