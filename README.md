@@ -501,3 +501,415 @@ git add inventory ansible-playbook.yml
 git commit -m "Add Ansible config and playbook for Docker setup"
 git push -u origin main
 ```
+
+
+
+## 🐳 Phase 3: Docker Compose Deployment with Auto-Updates
+
+In this phase, we deployed the application using Docker Compose on the EC2 instance and configured **Watchtower** for automatic updates, enabling seamless continuous deployment without additional manual steps.
+
+---
+
+### 🧩 Step 1: Deploy the App with Docker Compose
+
+> **Goal**: Use Docker Compose to run the containerized ToDo List App with health checks.
+
+SSH into your EC2 instance:
+
+```bash
+ssh -i todo-key.pem ubuntu@<ec2-public-ip>
+```
+
+Ensure Docker Compose is installed (if not already):
+
+```bash
+sudo apt install docker-compose -y
+```
+
+Create the Compose file:
+
+```bash
+touch docker-compose.yml
+```
+
+> ✅ The full `docker-compose.yml` file is available in the repository. It includes port binding, health checks, and environment variables.
+
+Start the app in detached mode:
+
+```bash
+docker-compose up -d
+```
+
+Check the status of running containers:
+
+```bash
+docker ps
+```
+
+Test the app locally on the instance:
+
+```bash
+curl http://localhost:31013
+```
+
+You should receive the app's HTML output.
+
+---
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/457d2f45364445482757d64c11cc1dfa72f64723/DevOps-assets/3.1%20Docker-compose%20running%20the%20app%20in%20the%20ec2.png)
+
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/457d2f45364445482757d64c11cc1dfa72f64723/DevOps-assets/3.2%20The%20application%20is%20running%20on%20the%20ec2%20successfully.png)
+
+
+
+
+### 🔁 Step 2: Add Watchtower for Continuous Deployment (CD)
+
+> **Goal**: Automatically detect and update containers when a new image is pushed to the Docker registry.
+
+#### ✅ Why Watchtower?
+
+Watchtower is a lightweight, Docker-native tool that **monitors running containers** and automatically pulls and redeploys the latest image versions. It’s a **zero-config CD solution**, ideal for simple, container-based setups where full GitOps is not required.
+
+Compared to tools like **Portainer**, which offers a UI but requires manual intervention, or **Jenkins**, which demands more configuration and infrastructure, Watchtower provides:
+
+- 📦 **Simplicity**: No need for pipeline scripting or external UI.
+- ⚙️ **Automation**: Auto-restarts updated containers with zero downtime.
+- 🚀 **Speed**: Quick to set up and integrates directly with Docker.
+
+For this project, Watchtower complements the Docker Compose deployment by enabling **automatic container refresh** when the image is updated in Docker Hub — enabling **continuous deployment** with minimal setup.
+
+---
+
+#### 🛠️ Watchtower Setup
+
+Pull the Watchtower image:
+
+```bash
+docker pull containrrr/watchtower
+```
+
+Run the Watchtower container:
+
+```bash
+docker run -d \
+  --name watchtower \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  containrrr/watchtower
+```
+
+Check if Watchtower is running:
+
+```bash
+docker ps
+```
+
+(Optional) Run Watchtower with a scheduled interval (every 5 minutes):
+
+```bash
+docker stop watchtower
+docker rm watchtower
+
+docker run -d \
+  --name watchtower \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  containrrr/watchtower \
+  --schedule "*/5 * * * *"
+```
+
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/457d2f45364445482757d64c11cc1dfa72f64723/DevOps-assets/3.3%20Docker-compose%20wroking%20after%20resolving%20the%20mongodb%20url%20problem%20and%20watch%20tower%20is%20set.png)
+
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/457d2f45364445482757d64c11cc1dfa72f64723/DevOps-assets/3.4%20pulling%20images%20to%20get%20anu%20update%20after%205%20mins%20the%20better%20one.png)
+
+---
+
+> ✅ With Watchtower in place, any image pushed to your registry will trigger an automatic update — delivering a true continuous deployment pipeline with minimal overhead.
+
+
+### 🧪 Step 3: Test Auto-Update from Docker Registry
+
+> **Goal**: Confirm Watchtower detects updated images and redeploys the container.
+
+On your **local machine**, build and push an updated image:
+
+```bash
+docker build -t your_dockerhub_username/todo-app:latest .
+docker push your_dockerhub_username/todo-app:latest
+```
+
+Return to your EC2 instance and monitor Watchtower logs:
+
+```bash
+docker logs watchtower
+```
+
+Look for logs indicating it pulled a new image and restarted the container.
+
+---
+
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/457d2f45364445482757d64c11cc1dfa72f64723/DevOps-assets/3.5%20after%20changing%20in%20docker%20image%20to%20make%20sure%20it%20is%20pulling%20successfully.png)
+
+
+### ✅ Step 4: Validate Phase 3 Completion
+
+Confirm the Docker Compose services are healthy:
+
+```bash
+docker-compose ps
+```
+
+Optionally, test external access via browser or curl:
+
+```bash
+curl http://<ec2-public-ip>:31013
+```
+
+To clean up:
+
+```bash
+docker-compose down
+docker stop watchtower
+docker rm watchtower
+```
+
+Commit Docker Compose configuration:
+
+```bash
+git add docker-compose.yml
+git commit -m "Add Docker Compose and Watchtower setup"
+git push -u origin main
+```
+
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/457d2f45364445482757d64c11cc1dfa72f64723/DevOps-assets/3.6%20connected%20to%20db%20as%20well.png)
+
+---
+
+> ✅ With this setup, the app is live and continuously updated via Docker Compose + Watchtower — a lightweight but powerful CD solution.
+
+
+
+## 🚀 Phase 4: Kubernetes & ArgoCD Deployment (Bonus)
+
+> In this final phase, we transitioned from Docker Compose to Kubernetes for orchestration, and introduced **ArgoCD** for GitOps-style Continuous Deployment. We used MicroK8s due to its lightweight nature and simplicity for single-node clusters like our EC2 instance.
+
+---
+
+### ⚙️ Why MicroK8s?
+
+We chose **MicroK8s** because it's a lightweight, production-ready Kubernetes distribution that's perfect for single-node deployments on limited-resource VMs like EC2. It includes built-in support for add-ons like ArgoCD, DNS, and storage, making it ideal for small-scale DevOps projects.
+
+---
+
+### 💡 Step 1: Upgrade EC2 Instance Resources
+
+To run Kubernetes efficiently, increase the EC2 instance type to at least `t3.small`.
+
+- Stop the instance via AWS Console
+- Go to: `Actions > Instance Settings > Change Instance Type`
+- Choose `t3.small`, then start the instance again
+
+SSH back in:
+
+```bash
+ssh -i todo-key.pem ubuntu@<your-ec2-ip>
+```
+
+Verify instance type (optional):
+
+```bash
+curl http://169.254.169.254/latest/meta-data/instance-type
+```
+
+
+
+---
+
+### 🧱 Step 2: Install MicroK8s and Enable ArgoCD
+
+Install and configure MicroK8s:
+
+```bash
+sudo snap install microk8s --classic
+sudo usermod -a -G microk8s $USER
+newgrp microk8s
+```
+
+Enable the required Kubernetes add-ons:
+
+```bash
+microk8s enable dns storage argocd
+```
+
+Check status and node readiness:
+
+```bash
+microk8s status
+microk8s kubectl get nodes
+```
+
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/008746415e856fa368fa4c9e081bb4f1a1a5b3f1/DevOps-assets/4.1%20microk8s%20-%20dashboard%20-%20dns%20enabled.png)
+
+Updating the security group to add port range 30000-32767 for kubernetes.
+
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/008746415e856fa368fa4c9e081bb4f1a1a5b3f1/DevOps-assets/4.2%20security%20group%20updated%20for%20kubernetes.png)
+
+---
+
+### 📦 Step 3: Apply Kubernetes Manifests
+
+Create a directory and apply Kubernetes manifests:
+
+```bash
+mkdir -p k8s
+cd k8s
+```
+
+> 📝 The `deployment.yaml` and `service.yaml` files are located in the [k8s](./k8s) folder in this repository.
+
+Apply the resources:
+
+```bash
+microk8s kubectl apply -f k8s/deployment.yaml
+microk8s kubectl apply -f k8s/service.yaml
+```
+
+Verify deployment:
+
+```bash
+microk8s kubectl get deployments
+microk8s kubectl get pods
+```
+
+
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/008746415e856fa368fa4c9e081bb4f1a1a5b3f1/DevOps-assets/4.3%20deployment%20and%20service%20yaml%20file%20done.png)
+
+
+
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/008746415e856fa368fa4c9e081bb4f1a1a5b3f1/DevOps-assets/4.5%20application%20working%20in%20the%20pod.png)
+
+---
+
+### 🔄 Step 4: Configure ArgoCD
+
+ArgoCD provides a GitOps-driven CD process where your Git repository is the single source of truth.
+
+Create `.argocdignore` in the project root to target only Kubernetes manifests:
+
+```bash
+touch .argocdignore
+```
+
+Add these lines to it:
+
+```
+*
+!k8s/deployment.yaml
+!k8s/service.yaml
+```
+
+Commit and push:
+
+```bash
+git add .argocdignore k8s/
+git commit -m "Add Kubernetes manifests and ArgoCD ignore file"
+git push -u origin main
+```
+
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/ed8cb5bad86b1bd4b22808d87dc3004e2512bc0b/DevOps-assets/4.6%20argocd%20downloaded.png)
+
+Adding port 8080 in the security group of ec2 to access ArgoCD
+
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/ed8cb5bad86b1bd4b22808d87dc3004e2512bc0b/DevOps-assets/4.7%20adding%20port%208080%20to%20access%20argocd%20UI.png)
+
+
+---
+
+### 🌐 Step 5: Access ArgoCD Dashboard
+
+Port-forward the ArgoCD server to access it in your browser:
+
+```bash
+ssh -i todo-key.pem -L 8080:localhost:8080 ubuntu@<your-ec2-ip> "microk8s kubectl port-forward -n argocd svc/argocd-server 8080:443"
+```
+
+Then open: [http://localhost:8080](http://localhost:8080)
+
+Get the initial ArgoCD admin password:
+
+```bash
+microk8s kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```
+
+Login with username: `admin`
+
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/ed8cb5bad86b1bd4b22808d87dc3004e2512bc0b/DevOps-assets/4.8%20argocd%20is%20working%20successfully.png)
+
+---
+
+### ⚙️ Step 6: Create ArgoCD Application
+
+In the ArgoCD dashboard:
+
+- **App Name**: `todo-app`
+- **Repo URL**: `https://github.com/MinaGeorge17/ToDo-List-App-NodeJS`
+- **Path**: `k8s`
+- **Cluster**: `https://kubernetes.default.svc`
+- **Namespace**: `default`
+
+Click **Create** and then **Sync** the application.
+
+
+Saving the credentials of repo in ArgoCD as the repo was private to make ArgoCD able to access GITHUB.
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/ed8cb5bad86b1bd4b22808d87dc3004e2512bc0b/DevOps-assets/4.10%20saving%20the%20credentials%20of%20the%20repo%20in%20argocd.png)
+
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/ed8cb5bad86b1bd4b22808d87dc3004e2512bc0b/DevOps-assets/4.11%20healthyyyy.png)
+
+
+
+---
+
+### ✅ Step 7: Validate the Kubernetes Deployment
+
+Check pod status:
+
+```bash
+microk8s kubectl get pods
+```
+
+Test the application:
+
+```bash
+curl http://<your-ec2-ip>:31013/dashboard
+```
+
+Update and push a new Docker image (on your local machine):
+
+```bash
+docker build -t your_docker_username/todo-app:latest .
+docker push your_docker_username/todo-app:latest
+```
+
+Sync from ArgoCD UI or CLI:
+
+```bash
+microk8s kubectl logs -l app=todo-app
+```
+
+Commit your final changes:
+
+```bash
+git add .
+git commit -m "Deploy ToDo App on Kubernetes with ArgoCD"
+git push
+```
+
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/ed8cb5bad86b1bd4b22808d87dc3004e2512bc0b/DevOps-assets/4.12%20%20.png)
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/ed8cb5bad86b1bd4b22808d87dc3004e2512bc0b/DevOps-assets/4.13%20.png)
+
+---
+
+✅ **You now have a fully GitOps-enabled Kubernetes deployment!**
+
+### Contact
+For any inquiries or collaboration, reach out at minaaziz6868@gmail.com
+
+
