@@ -716,7 +716,7 @@ git push -u origin main
 
 
 
-## 🚀 Phase 4: Kubernetes & ArgoCD Deployment (Bonus)
+## 🚀 Phase 4: Kubernetes & ArgoCD Deployment 
 
 > In this final phase, we transitioned from Docker Compose to Kubernetes for orchestration, and introduced **ArgoCD** for GitOps-style Continuous Deployment. We used MicroK8s due to its lightweight nature and simplicity for single-node clusters like our EC2 instance.
 
@@ -741,14 +741,6 @@ SSH back in:
 ```bash
 ssh -i todo-key.pem ubuntu@<your-ec2-ip>
 ```
-
-Verify instance type (optional):
-
-```bash
-curl http://169.254.169.254/latest/meta-data/instance-type
-```
-
-
 
 ---
 
@@ -808,10 +800,12 @@ microk8s kubectl get deployments
 microk8s kubectl get pods
 ```
 
+To Verify that everything is working fine:
+```bash
+microk8s kubectl logs <pod-id>
+```
 
 ![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/008746415e856fa368fa4c9e081bb4f1a1a5b3f1/DevOps-assets/4.3%20deployment%20and%20service%20yaml%20file%20done.png)
-
-
 
 ![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/008746415e856fa368fa4c9e081bb4f1a1a5b3f1/DevOps-assets/4.5%20application%20working%20in%20the%20pod.png)
 
@@ -828,7 +822,6 @@ touch .argocdignore
 ```
 
 Add these lines to it:
-
 ```
 *
 !k8s/deployment.yaml
@@ -857,7 +850,11 @@ Adding port 8080 in the security group of ec2 to access ArgoCD
 Port-forward the ArgoCD server to access it in your browser:
 
 ```bash
-ssh -i todo-key.pem -L 8080:localhost:8080 ubuntu@<your-ec2-ip> "microk8s kubectl port-forward -n argocd svc/argocd-server 8080:443"
+ssh -i todo-key.pem -L 8080:localhost:8080 ubuntu@<your-ec2-ip> 
+```
+And for other terminal (or the same one)
+```bash
+microk8s kubectl port-forward -n argocd svc/argo-cd-argocd-server 8080:443
 ```
 
 Then open: [http://localhost:8080](http://localhost:8080)
@@ -869,6 +866,7 @@ microk8s kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{
 ```
 
 Login with username: `admin`
+and use the Password provided as an output of the last command
 
 ![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/ed8cb5bad86b1bd4b22808d87dc3004e2512bc0b/DevOps-assets/4.8%20argocd%20is%20working%20successfully.png)
 
