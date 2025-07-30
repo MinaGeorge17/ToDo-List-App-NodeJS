@@ -163,6 +163,10 @@ This phase sets up the foundation of the ToDo List App by cloning the repo, conf
   ```bash
   ls -a
   ```
+  - Start the application and access the interface using locahost:4000 :
+  ```bash
+  npm start
+  ```
 
 ![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/0d6fde75db7418618ac35d7f4685da4e247ed19b/DevOps-assets/1.2%20App%20Interface%20.png)
 
@@ -232,11 +236,6 @@ If you don't have MongoDB installed locally, you can use **MongoDB Atlas** — a
   npm start
   ```
 
-  **OR if you're using Docker:**
-  ```bash
-  docker build -t todo-app .
-  docker run -p 4000:4000 --env-file .env todo-app
-  ```
 
 - In your terminal logs, you should see a success message like:
   ```
@@ -246,17 +245,19 @@ If you don't have MongoDB installed locally, you can use **MongoDB Atlas** — a
 
 - Visit the app in your browser at:
   ```
-  http://localhost:4000/dashboard
+  http://localhost:4000
   ```
 
-If the dashboard loads and you can add tasks, the app is successfully connected to your MongoDB database.
+> 🚀 **Success Check:** If the dashboard loads and you can add tasks, the app is successfully connected to your MongoDB database.
 
----
+The following screenshots illustrate an example of adding a task (eg: buy your groceries) and then appears in the collections of MongoDB.
+
+
 
 ![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/0d6fde75db7418618ac35d7f4685da4e247ed19b/DevOps-assets/1.3%20adding%20a%20task%20.png)
 ![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/0d6fde75db7418618ac35d7f4685da4e247ed19b/DevOps-assets/1.4%20MongoDB%20success%20.png)
 
-
+---
 
 
 ### 🐳 Step 3: Dockerize the Application
@@ -334,6 +335,9 @@ If the dashboard loads and you can add tasks, the app is successfully connected 
 ---
 
 🎉 **Phase 1 completed:** The app is now containerized and CI is working with GitHub Actions and Docker Hub.
+
+---
+
 
 
 ## 🚀 Phase 2: EC2 Instance Creation and Ansible Configuration
