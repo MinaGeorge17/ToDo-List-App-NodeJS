@@ -357,9 +357,10 @@ With the application containerized and a CI pipeline in place, we now move on to
   - **Instance Type**: `t3.small` (2 vCPUs, 2 GB RAM)
   - **Key Pair**: Create a new key pair (e.g., `todo-key.pem`)
   - **Security Group**:
-    - Allow **SSH (22)** from your IP
-    - Allow **TCP (31013)** for the app
-    - Allow **TCP (8080)** for ArgoCD
+    - Allow **TCP (22)** for SSH
+    - Allow **TCP (80)** for HTTP
+    - Allow **TCP (443)** for HTTPS
+    - Allow **TCP (4000)** for Application access testing
 
 > ⚠️ Save the `.pem` file securely and note your public EC2 IP.
 
@@ -429,7 +430,6 @@ Exit the EC2 shell after confirming access:
 ```bash
 exit
 ```
-![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/053cbdb44d4b03c584c607f836ffd64f46237988/DevOps-assets/2.2%20Successful%20SSH%20connection.png)
 
 ---
 
@@ -444,6 +444,9 @@ touch inventory
 ```
 
 Edit it or copy it from the project repository.
+Make sure inventory file can ping your EC2
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/053cbdb44d4b03c584c607f836ffd64f46237988/DevOps-assets/2.3%20ansible%20env%20can%20connect%20to%20the%20ec2.png)
+
 
 ---
 
@@ -460,7 +463,6 @@ touch playbook.yml
 Edit it or retrieve it from the repo.
 
 
-![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/053cbdb44d4b03c584c607f836ffd64f46237988/DevOps-assets/2.3%20ansible%20env%20can%20connect%20to%20the%20ec2.png)
 
 ---
 
@@ -470,6 +472,47 @@ Edit it or retrieve it from the repo.
 ansible-playbook -i inventory playbook.yml
 ```
 ![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/053cbdb44d4b03c584c607f836ffd64f46237988/DevOps-assets/2.4%20ansible%20downloading%20docker%20on%20ec2%20ubuntu.png)
+
+---
+
+### 🧪 Optional: Using Python Virtual Environment for Ansible in WSL
+
+Using a virtual environment is a good DevOps practice when running Ansible on WSL (Linux on Windows).  
+It offers:
+
+- 🧱 **Isolation**: Keeps Ansible’s dependencies separate from system Python.
+- 🔁 **Flexibility**: Lets you test different Ansible versions safely.
+- ✅ **Best Practice**: Makes your setup reproducible—ideal for DevOps workflows.
+
+### 🛠️ How to Set It Up
+
+```bash
+# Create the virtual environment
+python3 -m venv ansible-env
+```
+
+Activate it
+```bash
+source ansible-env/bin/activate
+```
+Install Ansible in the virtual environment
+
+```bash
+pip install ansible
+```
+Run your Ansible playbook
+
+```bash
+ansible-playbook -i inventory ansible-playbook.yml
+```
+Exit the virtual environment when done
+
+```bash
+deactivate
+```
+ 
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/053cbdb44d4b03c584c607f836ffd64f46237988/DevOps-assets/2.2%20Successful%20SSH%20connection.png)
+
 
 ---
 
@@ -538,10 +581,15 @@ touch docker-compose.yml
 
 > ✅ The full `docker-compose.yml` file is available in the repository. It includes port binding, health checks, and environment variables.
 
+> ⚠️ **Don't forget:**  
+> You must create a `.env` file before running the application.  
+> Add your MongoDB connection string using the correct variable name **based on what's used in your `mongoose.js` file**
+
+
 Start the app in detached mode:
 
 ```bash
-docker-compose up -d
+docker-compose --env-file .env up -d
 ```
 
 Check the status of running containers:
@@ -553,7 +601,7 @@ docker ps
 Test the app locally on the instance:
 
 ```bash
-curl http://localhost:31013
+curl http://localhost:4000
 ```
 
 You should receive the app's HTML output.
@@ -563,6 +611,7 @@ You should receive the app's HTML output.
 
 ![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/457d2f45364445482757d64c11cc1dfa72f64723/DevOps-assets/3.2%20The%20application%20is%20running%20on%20the%20ec2%20successfully.png)
 
+![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/457d2f45364445482757d64c11cc1dfa72f64723/DevOps-assets/3.6%20connected%20to%20db%20as%20well.png)
 
 
 
@@ -583,42 +632,21 @@ Compared to tools like **Portainer**, which offers a UI but requires manual inte
 For this project, Watchtower complements the Docker Compose deployment by enabling **automatic container refresh** when the image is updated in Docker Hub — enabling **continuous deployment** with minimal setup.
 
 ---
-
 #### 🛠️ Watchtower Setup
 
-Pull the Watchtower image:
+Watchtower is already configured in the `docker-compose.yml` file available in this repository.  
+It enables basic **Continuous Deployment (CD)** by automatically checking for new image versions every **5 minutes** and updating running containers when needed.
 
-```bash
-docker pull containrrr/watchtower
+```yaml
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ~/.docker/config.json:/config.json
+    command: --interval 300 --debug
+    restart: unless-stopped
 ```
 
-Run the Watchtower container:
-
-```bash
-docker run -d \
-  --name watchtower \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  containrrr/watchtower
-```
-
-Check if Watchtower is running:
-
-```bash
-docker ps
-```
-
-(Optional) Run Watchtower with a scheduled interval (every 5 minutes):
-
-```bash
-docker stop watchtower
-docker rm watchtower
-
-docker run -d \
-  --name watchtower \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  containrrr/watchtower \
-  --schedule "*/5 * * * *"
-```
 
 ![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/457d2f45364445482757d64c11cc1dfa72f64723/DevOps-assets/3.3%20Docker-compose%20wroking%20after%20resolving%20the%20mongodb%20url%20problem%20and%20watch%20tower%20is%20set.png)
 
@@ -664,15 +692,13 @@ docker-compose ps
 Optionally, test external access via browser or curl:
 
 ```bash
-curl http://<ec2-public-ip>:31013
+curl http://<ec2-public-ip>:4000
 ```
 
 To clean up:
 
 ```bash
 docker-compose down
-docker stop watchtower
-docker rm watchtower
 ```
 
 Commit Docker Compose configuration:
@@ -683,7 +709,6 @@ git commit -m "Add Docker Compose and Watchtower setup"
 git push -u origin main
 ```
 
-![App UI](https://github.com/MinaGeorge17/ToDo-List-App-NodeJS/blob/457d2f45364445482757d64c11cc1dfa72f64723/DevOps-assets/3.6%20connected%20to%20db%20as%20well.png)
 
 ---
 
