@@ -102,5 +102,5 @@ app.listen(port,(err) => {
     if (err) {
         console.log(`Error: ${err}`);
     }
-    console.log(`Yuppo! Server is running on port ${port}`);
+    console.log(`Yupp! Server is running on port ${port}`);
 })
